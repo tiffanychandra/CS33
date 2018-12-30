@@ -1,0 +1,30 @@
+Problem 2.82
+
+A. (x<y) == (-x>-y)
+False, it can yield 0 when x is Tmin, or when both variables are 0.
+
+B. ((x+y)<< 4) + y-x == 17*y+15*x
+True, this always yields 1. This is because ((x+y) << 4) + y-x is equal to x << 4 - x + y << 4 + y.
+Then, x << 4 is the same as x*2^4 or x*16 and similarly y << 4 is equal to y*2^4 or y*16. 
+Then, the original expression is equal to x*16 - x + y*16 + y, so it is equal to x*15 + y*17.
+
+C. ~x+~y+1 == ~(x+y)
+True, this always yields 1. This is because ~x + ~y + 1 = ~x + 1 + ~y + 1 - 1. 
+Then by definition of two’s complement, the RHS of the equation is equal to -x + -y - 1.
+Then, -x + -y - 1 = -(x+y) - 1 = ~(x+y) + 1 - 1 = ~(x+y).
+
+D. (ux-uy) == -(unsigned)(y-x)
+True, this always yields 1. This is because (ux-uy) == -(unsigned)(y-x) implies that 
+-(ux-uy) == (unsigned)(y-x),
+so then (ux-uy) == (unsigned)(x-y) which is true by definition. Because both sides of the equation are ultimately unsigned values, they are equal.
+
+E.((x >> 2) << 2) <= x
+True, this always yields 1. When x is shifted to the left by 2 bits, the value of the last two bits of x (00) could potentially be less than the original x bit value or the most significant bits can be 1’s, which produces a more negative result. Hence, it is always less than or equal to x. In the other cases where the most significant bits stay the same, then resulting x will still be equal to the original x.
+
+F. x >> 1 == (ux >> 1) + (ux & (-1 << 31))
+True, this always yields 1. On the right hand side, (-1 << 31) is equal to INT_MIN. x is either positive or negative, and so x >> 1 when x is positive will add a 0 to the front of the bit and (ux & INT_MIN) will produce a 0, since the leading bit of ux is 0 and INT_MIN has all 0’s except for the leading bit. Then when ux is right shifted by 1, it is equal to the result produced by x right shifted by 1. 
+In the case that x is negative, then the leading bit is 1 and when right shifted once it will add a 1 to the front of the bit representation. Then on the right hand side, the expression INT_MIN & ux will produce INT_MIN since the leading bit of ux and INT_MIN is 1 and the rest 0’s. When ux is right shifted by one bit, we add a 0 to the front and adding INT_MIN + ux will change the leading bit of the result to 1. Hence the result on both sides of the equation are true. 
+
+G. x % 8 == (x & 7)
+False, it can yield 0. In the right hand side case that x & 7, 7 acts as a mask to operate on the bit number. The left hand side of the equation though shifts x to the right by 3 bits. 
+If x is a signed number such as -1, the equation will give -1 on the left hand side and 127 on the right hand side. 

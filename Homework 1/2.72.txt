@@ -1,0 +1,10 @@
+Problem 2.72
+
+A. The conditional test in the code will always succeed because the sizeof operator will return a value of type size_t, which is an unsigned type. So, when we compute maxbytes-sizeof(val) and obtain the size_t type, it will always be >= 0. 
+
+B. We can rewrite the conditional test to make it work as follows: 
+void copy_int(int val, void *buf, int maxbytes) {
+	if (maxbytes >= (int) sizeof(val))
+		memcpy(buf, (void *) &val, sizeof(val));
+
+}
