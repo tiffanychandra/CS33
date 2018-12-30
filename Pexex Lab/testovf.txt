@@ -1,0 +1,60 @@
+Examine integer overflow handling
+
+I placed the following function into a .c file and compiling it with gcc and the respective command and then using objdump to get the assembly program:
+
+ _Bool
+  testovf (long n)
+  {
+    return n + 9223372036854775807 < n;
+  }
+
+1. -O2
+
+0000000000000000 <testovf>:
+0: 31 c0			xor	%eax,%eax
+2: c3				retq
+
+In this case, the function returns 0. The machine line "xor %eax,%eax" clears the %eax register to output the value 0 since the expression is evaluated to be false almost immediately. The compiler does not consider the overflow case. It assumes that the sum of any two numbers is greater than either number. (big + LONG_MAX < big is false in every case (with this optimization flag)). 
+
+2. -O2 -fwrapv
+
+0000000000000000 <testovf>:
+0: 48 b8 ff ff ff ff ff		movabs $0x7fffffffffffffff,%rax
+7: ff ff 7f
+a: 48 01 f8			add	%rdi,%rax
+d: 48 39 f8			cmp	%rdi,%rax
+10: 0f 9c c0			setl	%al
+13: c3				retq
+
+In this case with the -fwrapv flag, the compiler always wraps in every operation of signed arithmetic when an overflow occurs and assumes undefined behavior. It deals with overflow by wrapping the number essentially creating a smaller result for a sum. Then after the adding instruction, it will compare the result of the comparison and LONG_MAX, and return true (1) after the OF flag is set to 1. 
+
+
+3. -O2 -fsanitize=undefined
+0000000000000000 <testovf>:
+0: 55				push	%rbp
+1: 53				push	%rbx
+2: 48 ba ff ff ff ff ff		movabs	$0x7fffffffffffffff,%rdx
+9: ff ff 7f
+c: 48 89 fd			mov	%rdi,%rbp
+f: 48 89 fb			mov	%rdi,%rbx
+12: 48 83 ec 08			sub 	$0x8,%rsp
+16: 48 01 d5			add 	%rdx,%rbp
+19: 70 0d			jo	28 <testovf+0x28>
+1b: 48 39 dd			cmp	%rbx,%rbp
+1e: 0f 9c c0			setl	%al
+21: 48 83 c4 08			add	$0x8,$rsp
+25: 5b				pop	%rbx
+26: 5d				pop	%rbp
+27: c3				retq
+28: 48 89 fe			mov 	%rdi,%rsi
+2b: bf 00 00 00 00		mov	$0x0,%edi
+30: e8 00 00 00 00		callq	35 <testovf+0x35>
+35: eb e4			jmp	1b <testovf+0x1b>
+
+In this case with the -fsanitize=undefined flag, this flag is a compatible undefined behavior checker that will check for overflow and print out an error diagnostic message that is produced during runtime (seen with instruction "jo", jump when OF is set to 1). If there is an error, the compiler will continue execution of default undefined C behavior (including signed integer overflow) and give the wrong sum. It produces true (1). 
+The machine instructions first push some stack frames and adds the sum. It uses the overflow flag and sets it to 1 and jumps registers when there is an overflow. After printing the error message, it jumps back to the comparison instructions to compare the expression after computing and wrapping the sum. 
+
+The last two instances are slightly longer than the first because it actually computes the result by wrapping the two's complement number. 
+
+
+

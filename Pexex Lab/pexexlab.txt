@@ -1,0 +1,30 @@
+Tiffany Chandra
+604765656
+
+
+The purpose of this lab was to explore program execution using gdb and particularly noting when the operation of multiplication has to deal with signed overflow. I was mainly walking through the arith_driver function when executing the test.  
+
+First I run the following command to debug using gdb and enter the data file:
+$gdb ~eggert/bin64/bin/emacs-26.1
+
+To print each instruction as we step through the machine code:
+(gdb) set disassemble-next-line on
+
+Set a breakpoint whenever Ftimes function is called:
+(gdb) break Ftimes
+
+The following cammand is run to perform the desired operation (multiplication)
+(gdb) r -batch -eval '(print (* 1250284240 -1844255039))'
+
+I encountered an error with the gdb "missing separate debuginfos", which was resolved by using #debuginfo-install and the trailing statements stated in the error.
+
+Whenever the function would stop at Ftimes and after analyzing the change in the last step, the following command can execute the next instruction that calls Ftimes
+(gdb) si
+
+To check the values in registers to gather for the trace file:
+(gdb) info registers
+
+And to find the value of a specific register:
+(gdb) info registers $register 
+
+The trace file ends when the arith_driver function ends.
