@@ -1,0 +1,20 @@
+Problem 2.89
+
+Assume -fwrapv, and explain which of your answers require this assumption and why.
+The answers in B and D require this assumption especially because we must consider the case where there is overflow occurring. Then when overflow occurs, this will wrap the two's complement number to produce the expected answer when performing the comparison. If we do not have this optimization, then the comparison will not assume the overflow case when performing the operation and potentially produce a different/incorrect answer. 
+
+
+A. (float) x == (float) dx
+True, this will always yield one. (float) x will convert the integer to a float, which may cause rounding errors. Since dx is an integer that is converted into a double, there is no loss in precision. (float) dx downcasted into a float can cause overflow as well as rounding. But since dx holds the same value as x (except in a double variable) There will be no case of overflow error when comparing the two values (that are essentially the same) and so it will always yield one.
+
+B. dx - dy == (double) (x-y)
+False, we may get 0. When performing the double subtraction operation on the LHS, we have enough precision values to obtain the true value when operating on large numbers and without overflow. However, when performing integer subtraction on the RHS, there may be overflow, and hence they will not be equal and may yield 0. 
+
+C. (dx + dy) + dz == dx + (dy + dz)
+True, this will always yield one. This is because we are upcasting the integers into a double variable and so we do not lose precision. Hence when we perform addition associativity there will be no overflow since the values are not large enough. The double values are essentially in the integer range of 32 bits, where as the double's fractional range has 52 bits to carry. There will only be error in this statement if there is overflow with 2 numbers, which would never be the case in this case. 
+
+D. (dx * dy) * dz == dx * (dy * dz)
+False, this may yield 0. Overflow of two numbers multiplied may change the value of the expression on either side. When performing multiplication with double values, two very large numbers can produce a result that exceeds the number of bits that is available in a double variable and produce rounding errors and overflow. Thus the two results may not be the same. 
+
+E. dx / dx == dz / dz
+False, this may yield 0. This is because when x = 0 and converted to dx = +0.0, while z is some nonzero integer, by definition 0.0/0.0 will yield NaN, whereas dz/dz will yield 1.0. Hence this comparison will yield 0 in this case.
