@@ -1,0 +1,7 @@
+Question 12.17
+A.The program in Figure 12.46 has a bug. The thread is supposed to sleep for 1 second and then print a string. However, when we run it on our system, nothing prints. This is because the main function does not wait until the sleep(1) function finishes; during the sleep implementation, the computer will continue to run the main() function that exits before the thread routine can finish the sleep function and print (Hello World!)
+B.We fix this bug by replacing the exit function in line 10 with either the pthread_exit(void *thread_return) function or calling the function pthread_join(tid, NULL). The first function (pthread_exit) function, when called in the main thread, will wait for all other peer threads to terminate first (thus printing the desired output) and then terminate the main thread and the entire process with a return value of thread_return. Or, we can also use pthread_join function that will block the main function until the peer thread, in this case printing Hello World, is called and finished. 
+
+Question 12.25 
+Yes, echo_cnt is thread-safe because the mutex protects the access to the static variable byte_cnt, and the function only references this counter variable, hence it will always produce the correct results when called repeatedly from multiple concurrent threads. It is not reentrant since it does reference shared data when echo_cnt is called by multiple threads, and it shares the same mutex which blocks some threads when calling in multiple instances; hence changing the static variables. 
+
